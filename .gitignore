@@ -1,0 +1,8 @@
+node_modules
+.env
+.env.local
+.next
+.next-dev.log
+.next-dev.err.log
+public/uploads/products/*
+!public/uploads/products/.gitkeep
