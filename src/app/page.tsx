@@ -1,15 +1,16 @@
-import { desc } from "drizzle-orm";
+import { desc, eq } from "drizzle-orm";
 import type { Metadata } from "next";
 import Link from "next/link";
 
 import { db } from "@/db";
-import { products } from "@/db/schema";
+import { productBrands, productCategories, products } from "@/db/schema";
+import { formatProductPrice } from "@/lib/product-utils";
 
 export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export const metadata: Metadata = {
-  title: "Catalog สินค้า | POP Store Computer",
+  title: "POP Store Computer",
   description:
     "เลือกซื้อคอมพิวเตอร์ All in One, PC และ Notebook Business สภาพดี ราคาคุ้ม จาก POP Store Computer พร้อมรับประกัน 3 เดือนและตรวจสอบ Serial Number ได้",
   keywords: [
@@ -63,7 +64,23 @@ const credibilityCards = [
 
 async function getProducts() {
   try {
-    return await db.select().from(products).orderBy(desc(products.createdAt));
+    return await db
+      .select({
+        id: products.id,
+        name: products.name,
+        price: products.price,
+        fbPostUrl: products.fbPostUrl,
+        imageUrl: products.imageUrl,
+        isVisible: products.isVisible,
+        createdAt: products.createdAt,
+        categoryName: productCategories.name,
+        brandName: productBrands.name,
+      })
+      .from(products)
+      .leftJoin(productCategories, eq(products.categoryId, productCategories.id))
+      .leftJoin(productBrands, eq(products.brandId, productBrands.id))
+      .where(eq(products.isVisible, true))
+      .orderBy(desc(products.createdAt));
   } catch (error) {
     console.error(error);
     return [];
@@ -113,12 +130,6 @@ export default async function HomePage() {
               >
                 Facebook
               </a>
-              <Link
-                href="/admin/add-product"
-                className="rounded-md bg-[#0f4fc9] px-4 py-2 text-sm font-semibold text-white transition duration-200 hover:-translate-y-0.5 hover:bg-[#0b3fa5] active:translate-y-0"
-              >
-                Admin
-              </Link>
             </nav>
           </div>
         </div>
@@ -271,10 +282,10 @@ export default async function HomePage() {
                       decoding="async"
                     />
                     <span className="absolute left-2 top-2 rounded-md bg-[#0f4fc9] px-2 py-1 text-[11px] font-semibold text-white">
-                      พร้อมขาย
+                      {product.categoryName ?? "พร้อมขาย"}
                     </span>
                     <span className="absolute right-2 top-2 rounded-md bg-[#ff8a1d] px-2 py-1 text-[11px] font-extrabold text-white shadow-md">
-                      ราคาคุ้ม
+                      {product.brandName ?? "ราคาคุ้ม"}
                     </span>
                   </div>
 
@@ -283,7 +294,7 @@ export default async function HomePage() {
                       {product.name}
                     </h3>
                     <p className="animate-price-pop mt-2 rounded-md bg-orange-50 px-2 py-2 text-lg font-extrabold leading-tight text-[#df4f00] ring-1 ring-orange-100 sm:text-xl">
-                      {product.price}
+                      {formatProductPrice(product.price)}
                     </p>
                     <p className="mt-1 text-xs leading-5 text-slate-500">
                       สอบถามสถานะล่าสุดและดูรายละเอียดผ่านโพสต์ร้าน
@@ -307,14 +318,8 @@ export default async function HomePage() {
                 ยังไม่มีสินค้าใน Catalog
               </h3>
               <p className="mx-auto mt-2 max-w-md text-sm leading-6 text-slate-500">
-                เพิ่มสินค้าแรกจากหน้า Admin แล้วกลับมาหน้านี้เพื่อดูการ์ดสินค้าแบบ Grid
+                สินค้าจะเริ่มแสดงที่นี่เมื่อมีรายการพร้อมขายในระบบ Catalog
               </p>
-              <Link
-                href="/admin/add-product"
-                className="mt-6 inline-flex rounded-md bg-slate-950 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
-              >
-                เพิ่มสินค้า
-              </Link>
             </div>
           )}
         </div>

@@ -1,5 +1,8 @@
 "use server";
 
+import { eq } from "drizzle-orm";
+import { revalidatePath } from "next/cache";
+
 import { requireAdminSession } from "@/auth";
 import { db } from "@/db";
 import { products } from "@/db/schema";
@@ -9,17 +12,29 @@ import {
 } from "@/lib/product-images";
 import { cleanText, parseOptionalId } from "@/lib/product-utils";
 
-export type AddProductState = {
+export type EditProductState = {
   ok: boolean;
   message: string;
 };
 
-export async function addProduct(
-  _previousState: AddProductState,
+function parseProductId(value: FormDataEntryValue | null) {
+  const id = parseOptionalId(value);
+
+  if (!id) {
+    throw new Error("ไม่พบรหัสสินค้า");
+  }
+
+  return id;
+}
+
+export async function updateProduct(
+  _previousState: EditProductState,
   formData: FormData,
-): Promise<AddProductState> {
+): Promise<EditProductState> {
   await requireAdminSession();
 
+  const id = parseProductId(formData.get("id"));
+  const currentImageUrl = cleanText(formData.get("currentImageUrl"));
   const name = cleanText(formData.get("name"));
   const price = cleanText(formData.get("price"));
   const categoryId = parseOptionalId(formData.get("categoryId"));
@@ -52,32 +67,35 @@ export async function addProduct(
   }
 
   try {
-    let imageUrl = "";
+    let imageUrl = currentImageUrl;
 
     if (image instanceof File && image.size > 0) {
       imageUrl = await saveUploadedProductImage(image);
     } else if (imageSourceUrl) {
       imageUrl = await importProductImageFromUrl(imageSourceUrl);
-    } else {
-      return {
-        ok: false,
-        message: "กรุณาอัปโหลด ลาก วาง หรือใส่ URL รูปภาพสินค้า",
-      };
     }
 
-    await db.insert(products).values({
-      name,
-      price,
-      categoryId,
-      brandId,
-      fbPostUrl,
-      imageUrl,
-    });
+    if (!imageUrl) {
+      return { ok: false, message: "กรุณาระบุรูปภาพสินค้า" };
+    }
 
-    return {
-      ok: true,
-      message: "บันทึกสินค้าสำเร็จ",
-    };
+    await db
+      .update(products)
+      .set({
+        name,
+        price,
+        categoryId,
+        brandId,
+        fbPostUrl,
+        imageUrl,
+      })
+      .where(eq(products.id, id));
+
+    revalidatePath("/");
+    revalidatePath("/admin/products");
+    revalidatePath(`/admin/products/${id}/edit`);
+
+    return { ok: true, message: "บันทึกการแก้ไขสินค้าเรียบร้อย" };
   } catch (error) {
     console.error(error);
 
@@ -86,7 +104,7 @@ export async function addProduct(
       message:
         error instanceof Error
           ? error.message
-          : "บันทึกไม่สำเร็จ กรุณาตรวจสอบข้อมูลอีกครั้ง",
+          : "แก้ไขสินค้าไม่สำเร็จ กรุณาตรวจสอบข้อมูลอีกครั้ง",
     };
   }
 }

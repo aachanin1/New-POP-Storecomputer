@@ -1,22 +1,33 @@
 "use client";
 
 import type React from "react";
-import { useActionState, useEffect, useRef, useState } from "react";
+import { useActionState, useRef, useState } from "react";
 import { useFormStatus } from "react-dom";
 
-import { addProduct, type AddProductState } from "./actions";
+import { updateProduct, type EditProductState } from "./actions";
 
 type Option = {
   id: number;
   name: string;
 };
 
-type AddProductFormProps = {
+type ProductFormValue = {
+  id: number;
+  name: string;
+  price: string;
+  categoryId: number | null;
+  brandId: number | null;
+  fbPostUrl: string;
+  imageUrl: string;
+};
+
+type EditProductFormProps = {
+  product: ProductFormValue;
   categories: Option[];
   brands: Option[];
 };
 
-const initialState: AddProductState = {
+const initialState: EditProductState = {
   ok: false,
   message: "",
 };
@@ -30,7 +41,7 @@ function SubmitButton() {
       disabled={pending}
       className="inline-flex h-11 items-center justify-center rounded-md bg-[#0f4fc9] px-5 text-sm font-bold text-white transition hover:bg-[#0b3fa5] disabled:cursor-not-allowed disabled:bg-slate-400"
     >
-      {pending ? "กำลังบันทึก..." : "บันทึกสินค้า"}
+      {pending ? "กำลังบันทึก..." : "บันทึกการแก้ไข"}
     </button>
   );
 }
@@ -41,27 +52,12 @@ function extractImageUrlFromHtml(html: string) {
   return match?.[1] ?? "";
 }
 
-export function AddProductForm({ categories, brands }: AddProductFormProps) {
-  const formRef = useRef<HTMLFormElement>(null);
+export function EditProductForm({ product, categories, brands }: EditProductFormProps) {
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [state, formAction] = useActionState(addProduct, initialState);
-  const [previewUrl, setPreviewUrl] = useState("");
+  const [state, formAction] = useActionState(updateProduct, initialState);
+  const [previewUrl, setPreviewUrl] = useState(product.imageUrl);
   const [imageSourceUrl, setImageSourceUrl] = useState("");
-  const [dropMessage, setDropMessage] = useState("ลากรูปมาวาง, paste รูป, ใส่ URL รูป หรือคลิกเลือกไฟล์");
-
-  function clearPreview() {
-    if (previewUrl.startsWith("blob:")) {
-      URL.revokeObjectURL(previewUrl);
-    }
-
-    setPreviewUrl("");
-    setImageSourceUrl("");
-    setDropMessage("ลากรูปมาวาง, paste รูป, ใส่ URL รูป หรือคลิกเลือกไฟล์");
-
-    if (fileInputRef.current) {
-      fileInputRef.current.value = "";
-    }
-  }
+  const [dropMessage, setDropMessage] = useState("เปลี่ยนรูปด้วยการลากรูป, paste รูป, วาง URL หรือคลิกเลือกไฟล์");
 
   function setSelectedFile(file: File) {
     if (!file.type.startsWith("image/")) {
@@ -82,7 +78,7 @@ export function AddProductForm({ categories, brands }: AddProductFormProps) {
 
     setImageSourceUrl("");
     setPreviewUrl(URL.createObjectURL(file));
-    setDropMessage(`เลือกไฟล์แล้ว: ${file.name}`);
+    setDropMessage(`เลือกไฟล์ใหม่แล้ว: ${file.name}`);
   }
 
   function setRemoteImageUrl(url: string) {
@@ -100,15 +96,7 @@ export function AddProductForm({ categories, brands }: AddProductFormProps) {
 
     setImageSourceUrl(cleanUrl);
     setPreviewUrl(cleanUrl);
-    setDropMessage("ใช้ URL รูปภาพ ระบบจะดึงมาเก็บในเว็บเราเมื่อกดบันทึก");
-  }
-
-  function handleFileInputChange(event: React.ChangeEvent<HTMLInputElement>) {
-    const file = event.target.files?.[0];
-
-    if (file) {
-      setSelectedFile(file);
-    }
+    setDropMessage("ใช้ URL รูปภาพใหม่ ระบบจะดึงมาเก็บในเว็บเราเมื่อกดบันทึก");
   }
 
   function handleDrop(event: React.DragEvent<HTMLDivElement>) {
@@ -139,28 +127,15 @@ export function AddProductForm({ categories, brands }: AddProductFormProps) {
       return;
     }
 
-    const text = event.clipboardData.getData("text/plain");
-    setRemoteImageUrl(text);
+    setRemoteImageUrl(event.clipboardData.getData("text/plain"));
   }
 
-  useEffect(() => {
-    if (state.ok) {
-      formRef.current?.reset();
-      clearPreview();
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [state.ok]);
-
-  useEffect(() => {
-    return () => {
-      if (previewUrl.startsWith("blob:")) {
-        URL.revokeObjectURL(previewUrl);
-      }
-    };
-  }, [previewUrl]);
-
   return (
-    <form ref={formRef} action={formAction} className="space-y-6">
+    <form action={formAction} className="space-y-6">
+      <input name="id" type="hidden" value={product.id} readOnly />
+      <input name="currentImageUrl" type="hidden" value={product.imageUrl} readOnly />
+      <input name="imageSourceUrl" type="hidden" value={imageSourceUrl} readOnly />
+
       <div className="grid gap-5 sm:grid-cols-2">
         <label className="block sm:col-span-2">
           <span className="text-sm font-semibold text-slate-700">ชื่อสินค้า</span>
@@ -168,8 +143,8 @@ export function AddProductForm({ categories, brands }: AddProductFormProps) {
             name="name"
             type="text"
             required
-            placeholder="เช่น Dell OptiPlex 5250 All in One"
-            className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
+            defaultValue={product.name}
+            className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
           />
         </label>
 
@@ -181,15 +156,12 @@ export function AddProductForm({ categories, brands }: AddProductFormProps) {
             inputMode="numeric"
             pattern="[0-9]*"
             required
-            placeholder="5900"
+            defaultValue={product.price}
             onChange={(event) => {
               event.target.value = event.target.value.replace(/\D/g, "");
             }}
-            className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
+            className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
           />
-          <span className="mt-2 block text-xs text-slate-500">
-            กรอกเฉพาะตัวเลข เช่น 5900 หน้าเว็บจะแสดงเป็น 5,900 บาท
-          </span>
         </label>
 
         <label className="block">
@@ -197,7 +169,7 @@ export function AddProductForm({ categories, brands }: AddProductFormProps) {
           <select
             name="categoryId"
             required
-            defaultValue=""
+            defaultValue={product.categoryId ?? ""}
             className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
           >
             <option value="" disabled>
@@ -216,7 +188,7 @@ export function AddProductForm({ categories, brands }: AddProductFormProps) {
           <select
             name="brandId"
             required
-            defaultValue=""
+            defaultValue={product.brandId ?? ""}
             className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
           >
             <option value="" disabled>
@@ -236,15 +208,24 @@ export function AddProductForm({ categories, brands }: AddProductFormProps) {
             name="fbPostUrl"
             type="url"
             required
-            placeholder="https://www.facebook.com/..."
-            className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
+            defaultValue={product.fbPostUrl}
+            className="mt-2 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
           />
         </label>
 
         <div className="sm:col-span-2">
           <span className="text-sm font-semibold text-slate-700">รูปภาพสินค้า</span>
-          <input ref={fileInputRef} name="image" type="file" accept="image/*" hidden onChange={handleFileInputChange} />
-          <input name="imageSourceUrl" type="hidden" value={imageSourceUrl} readOnly />
+          <input
+            ref={fileInputRef}
+            name="image"
+            type="file"
+            accept="image/*"
+            hidden
+            onChange={(event) => {
+              const file = event.target.files?.[0];
+              if (file) setSelectedFile(file);
+            }}
+          />
 
           <div
             role="button"
@@ -260,39 +241,20 @@ export function AddProductForm({ categories, brands }: AddProductFormProps) {
             }}
             className="mt-2 grid min-h-64 cursor-pointer place-items-center overflow-hidden rounded-lg border-2 border-dashed border-blue-200 bg-blue-50/40 p-4 text-center outline-none transition hover:border-[#0f4fc9] hover:bg-blue-50 focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
           >
-            {previewUrl ? (
-              <img
-                src={previewUrl}
-                alt="Preview"
-                className="max-h-80 w-full rounded-md object-contain"
-              />
-            ) : (
-              <div>
-                <p className="text-base font-bold text-slate-950">วางรูปตรงนี้</p>
-                <p className="mt-2 text-sm leading-6 text-slate-600">
-                  รองรับคลิกเลือกไฟล์, ลากรูปมาวาง, paste รูป หรือวาง URL รูปจากเว็บ
-                </p>
-              </div>
-            )}
-          </div>
-
-          <div className="mt-3 grid gap-3 sm:grid-cols-[1fr_auto]">
-            <input
-              type="url"
-              placeholder="หรือวาง URL รูปภาพที่นี่"
-              value={imageSourceUrl}
-              onChange={(event) => setRemoteImageUrl(event.target.value)}
-              className="h-11 rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
+            <img
+              src={previewUrl}
+              alt="Preview"
+              className="max-h-80 w-full rounded-md object-contain"
             />
-            <button
-              type="button"
-              onClick={clearPreview}
-              className="h-11 rounded-md border border-slate-300 bg-white px-4 text-sm font-semibold text-slate-700 transition hover:bg-slate-50"
-            >
-              ล้างรูป
-            </button>
           </div>
 
+          <input
+            type="url"
+            placeholder="หรือวาง URL รูปภาพใหม่ที่นี่"
+            value={imageSourceUrl}
+            onChange={(event) => setRemoteImageUrl(event.target.value)}
+            className="mt-3 h-11 w-full rounded-md border border-slate-300 bg-white px-3 text-sm text-slate-950 outline-none transition placeholder:text-slate-400 focus:border-[#0f4fc9] focus:ring-2 focus:ring-blue-100"
+          />
           <p className="mt-2 text-xs leading-5 text-slate-500">{dropMessage}</p>
         </div>
       </div>
