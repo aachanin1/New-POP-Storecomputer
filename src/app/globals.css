@@ -2,6 +2,11 @@
 @import "tailwindcss";
 
 :root {
+  --pop-blue: #0f4fc9;
+  --pop-blue-bright: #1877f2;
+  --pop-orange: #ff8a1d;
+  --pop-orange-soft: #fff1df;
+  --pop-ink: #07122f;
   color-scheme: light;
 }
 
@@ -11,8 +16,11 @@ html {
 
 body {
   margin: 0;
-  background: #f6f8fb;
-  color: #0f172a;
+  background:
+    radial-gradient(circle at top left, rgba(24, 119, 242, 0.1), transparent 28rem),
+    radial-gradient(circle at top right, rgba(255, 138, 29, 0.1), transparent 24rem),
+    #f6f8fb;
+  color: var(--pop-ink);
   font-family: "Prompt", Arial, Helvetica, sans-serif;
 }
 
@@ -55,6 +63,47 @@ select {
   }
 }
 
+@keyframes float-chip {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(0deg);
+  }
+  50% {
+    transform: translate3d(0, -7px, 0) rotate(-1deg);
+  }
+}
+
+@keyframes pulse-soft {
+  0%,
+  100% {
+    box-shadow: 0 0 0 0 rgba(255, 138, 29, 0.34);
+  }
+  50% {
+    box-shadow: 0 0 0 8px rgba(255, 138, 29, 0);
+  }
+}
+
+@keyframes marquee-soft {
+  from {
+    transform: translate3d(0, 0, 0);
+  }
+  to {
+    transform: translate3d(-25%, 0, 0);
+  }
+}
+
+@keyframes price-pop {
+  0% {
+    transform: scale(0.96);
+  }
+  60% {
+    transform: scale(1.04);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
 @keyframes sheen {
   from {
     transform: translateX(-120%) skewX(-18deg);
@@ -74,6 +123,22 @@ select {
 
 .animate-float-panel {
   animation: float-panel 5s ease-in-out infinite;
+}
+
+.animate-float-chip {
+  animation: float-chip 4.8s ease-in-out infinite;
+}
+
+.animate-pulse-soft {
+  animation: pulse-soft 2.4s ease-in-out infinite;
+}
+
+.animate-marquee-soft {
+  animation: marquee-soft 22s linear infinite;
+}
+
+.animate-price-pop {
+  animation: price-pop 520ms ease both;
 }
 
 .motion-delay-1 {
@@ -114,6 +179,77 @@ select {
   animation: fade-up 650ms ease both;
 }
 
+.marquee-mask {
+  overflow: hidden;
+  position: relative;
+}
+
+.marquee-mask::before,
+.marquee-mask::after {
+  bottom: 0;
+  content: "";
+  pointer-events: none;
+  position: absolute;
+  top: 0;
+  width: 44px;
+  z-index: 1;
+}
+
+.marquee-mask::before {
+  background: linear-gradient(90deg, rgba(255, 255, 255, 0.94), transparent);
+  left: 0;
+}
+
+.marquee-mask::after {
+  background: linear-gradient(270deg, rgba(255, 255, 255, 0.94), transparent);
+  right: 0;
+}
+
+.marquee-track {
+  animation: marquee-soft 22s linear infinite !important;
+  display: flex;
+  gap: 0.5rem;
+  width: max-content;
+  will-change: transform;
+}
+
+.marquee-pill {
+  flex: 0 0 auto;
+  white-space: nowrap;
+}
+
+.tech-grid {
+  background-image:
+    linear-gradient(rgba(15, 79, 201, 0.06) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(15, 79, 201, 0.06) 1px, transparent 1px);
+  background-size: 28px 28px;
+}
+
+.cta-sweep {
+  overflow: hidden;
+  position: relative;
+}
+
+.cta-sweep::after {
+  background: linear-gradient(
+    90deg,
+    transparent,
+    rgba(255, 255, 255, 0.34),
+    transparent
+  );
+  content: "";
+  height: 160%;
+  left: -50%;
+  position: absolute;
+  top: -30%;
+  transform: translateX(-110%) rotate(18deg);
+  width: 42%;
+}
+
+.cta-sweep:hover::after {
+  animation: sheen 800ms ease;
+}
+
 @media (prefers-reduced-motion: reduce) {
   *,
   *::before,
@@ -122,5 +258,9 @@ select {
     animation-iteration-count: 1 !important;
     scroll-behavior: auto !important;
     transition-duration: 1ms !important;
+  }
+
+  .marquee-track {
+    animation: marquee-soft 24s linear infinite !important;
   }
 }

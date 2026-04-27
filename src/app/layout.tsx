@@ -4,22 +4,24 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: {
-    default: "POP Store Computer | คอมพิวเตอร์มือสอง อุปกรณ์ไอที จัดสเปคคอม",
+    default: "POP Store Computer | คอมพิวเตอร์สภาพดี ราคาคุ้ม รับประกัน 3 เดือน",
     template: "%s | POP Store Computer",
   },
   description:
-    "POP Store Computer โดยบริษัท ป๊อบ สโตร์ จำกัด จำหน่ายคอมพิวเตอร์มือสอง อุปกรณ์ไอที และบริการจัดสเปคคอม พร้อมดูรายละเอียดสินค้าและสั่งซื้อผ่าน Facebook",
+    "POP Store Computer โดยบริษัท ป๊อบ สโตร์ จำกัด จำหน่ายคอมพิวเตอร์ All in One, PC และ Notebook Business สภาพดี ราคาคุ้ม ตรวจสอบ Serial Number ได้ พร้อมรับประกัน 3 เดือน",
   keywords: [
     "POP Store Computer",
     "ป๊อบ สโตร์ จำกัด",
     "คอมพิวเตอร์มือสอง",
+    "คอมพิวเตอร์สภาพดี",
+    "Notebook Business",
+    "All in One",
     "อุปกรณ์ไอที",
     "จัดสเปคคอม",
-    "โน้ตบุ๊กมือสอง",
-    "ร้านคอม",
+    "รับประกัน 3 เดือน",
   ],
   openGraph: {
-    title: "POP Store Computer | คอมพิวเตอร์มือสอง อุปกรณ์ไอที จัดสเปคคอม",
+    title: "POP Store Computer | คอมพิวเตอร์สภาพดี ราคาคุ้ม",
     description:
       "Catalog สินค้าไอทีจาก POP Store Computer ดูราคา รายละเอียด และสั่งซื้อผ่าน Facebook",
     type: "website",
