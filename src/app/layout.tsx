@@ -27,6 +27,11 @@ export const metadata: Metadata = {
   alternates: {
     canonical: "/",
   },
+  icons: {
+    icon: "/logo/pop-store-final.jpg",
+    shortcut: "/logo/pop-store-final.jpg",
+    apple: "/logo/pop-store-final.jpg",
+  },
   openGraph: {
     title: `${brandName} | คอมพิวเตอร์มือสองและอุปกรณ์ไอที`,
     description: storeDescription,

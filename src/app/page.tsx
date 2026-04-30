@@ -3,6 +3,7 @@ import Link from "next/link";
 
 import { ProductCard } from "@/components/ProductCard";
 import { ReviewGallery } from "@/components/ReviewGallery";
+import { SmoothScrollLink } from "@/components/SmoothScrollLink";
 import { getVisibleProducts } from "@/lib/product-queries";
 import {
   brandName,
@@ -26,7 +27,7 @@ export const dynamic = "force-dynamic";
 export const runtime = "nodejs";
 
 export const metadata: Metadata = {
-  title: "คอมพิวเตอร์มือสอง Notebook PC All in One",
+  title: "POP Store Computer",
   description:
     "เลือกซื้อคอมพิวเตอร์มือสอง Notebook Business, PC และ All in One จาก POP Store Computer พร้อมรับประกัน 3 เดือน ตรวจสอบ S/N ได้",
   alternates: {
@@ -58,7 +59,6 @@ const sectionLinks = [
   { href: "#latest-products", label: "สินค้ามาใหม่" },
   { href: "#reviews", label: "รีวิวหน้าร้าน" },
   { href: "#store-map", label: "แผนที่ร้าน" },
-  { href: "#contact", label: "ติดต่อร้าน" },
 ];
 
 export default async function HomePage() {
@@ -108,13 +108,13 @@ export default async function HomePage() {
 
           <nav className="section-nav hidden max-w-xl items-center gap-1 overflow-x-auto rounded-full border border-blue-100 bg-blue-50/70 p-1 lg:flex">
             {sectionLinks.map((item) => (
-              <a
+              <SmoothScrollLink
                 key={item.href}
-                href={item.href}
+                href={item.href as `#${string}`}
                 className="whitespace-nowrap rounded-full px-3 py-2 text-xs font-bold text-slate-600 transition hover:-translate-y-0.5 hover:bg-white hover:text-[#0f4fc9] hover:shadow-sm"
               >
                 {item.label}
-              </a>
+              </SmoothScrollLink>
             ))}
           </nav>
 
@@ -140,13 +140,13 @@ export default async function HomePage() {
       <div className="section-nav sticky top-16 z-30 overflow-x-auto border-b border-blue-100 bg-white/90 px-4 py-2 backdrop-blur lg:hidden">
         <div className="flex min-w-max gap-2">
           {sectionLinks.map((item) => (
-            <a
+            <SmoothScrollLink
               key={item.href}
-              href={item.href}
+              href={item.href as `#${string}`}
               className="rounded-full border border-blue-100 bg-blue-50 px-3 py-2 text-xs font-bold text-[#0f4fc9] transition hover:bg-blue-100"
             >
               {item.label}
-            </a>
+            </SmoothScrollLink>
           ))}
         </div>
       </div>
@@ -200,11 +200,11 @@ export default async function HomePage() {
             </div>
           </div>
 
-          <aside className="animate-fade-up motion-delay-2 relative grid min-h-[420px] place-items-center overflow-hidden rounded-lg border border-blue-100 bg-[radial-gradient(circle_at_50%_34%,#ffffff_0%,#eff6ff_42%,#fff5e8_100%)] p-6 shadow-lg shadow-blue-100">
-            <div className="pointer-events-none absolute inset-6 rounded-full border border-dashed border-blue-200 animate-orbit-ring" />
-            <div className="pointer-events-none absolute inset-14 rounded-full border border-orange-200 animate-orbit-ring motion-delay-2" />
-            <div className="relative z-10 text-center">
-              <div className="animate-logo-wiggle mx-auto grid h-56 w-56 place-items-center rounded-[2rem] bg-white p-5 shadow-2xl shadow-blue-200 ring-1 ring-blue-100 sm:h-64 sm:w-64">
+          <aside className="animate-fade-up motion-delay-2 relative flex min-h-[460px] flex-col items-center justify-center overflow-hidden rounded-lg border border-blue-100 bg-[radial-gradient(circle_at_50%_34%,#ffffff_0%,#eff6ff_42%,#fff5e8_100%)] p-6 shadow-lg shadow-blue-100">
+            <div className="relative z-10 grid place-items-center">
+              <div className="hero-orbit-motion pointer-events-none absolute h-[21rem] w-[21rem] rounded-full border border-dashed border-blue-200 animate-orbit-ring" />
+              <div className="hero-orbit-motion pointer-events-none absolute h-[16.5rem] w-[16.5rem] rounded-full border border-orange-200 animate-orbit-ring motion-delay-2" />
+              <div className="hero-logo-motion animate-logo-wiggle relative z-10 mx-auto grid h-52 w-52 place-items-center rounded-[2rem] bg-white p-5 shadow-2xl shadow-blue-200 ring-1 ring-blue-100 sm:h-60 sm:w-60">
                 <img
                   src="/logo/pop-store-final.jpg"
                   alt={brandName}
@@ -213,10 +213,14 @@ export default async function HomePage() {
                   height="512"
                 />
               </div>
-              <p className="mt-6 text-lg font-extrabold text-slate-950">{brandName}</p>
+            </div>
+
+            <div className="relative z-10 mt-8 text-center">
+              <p className="text-lg font-extrabold text-slate-950">{brandName}</p>
               <p className="mt-1 text-sm font-semibold text-slate-500">{companyName}</p>
             </div>
-            <div className="absolute inset-x-5 bottom-5 grid grid-cols-2 gap-2">
+
+            <div className="relative z-10 mt-5 grid w-full grid-cols-2 gap-2">
               {trustPoints.map((point) => (
                 <div
                   key={point}
