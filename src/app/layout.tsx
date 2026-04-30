@@ -1,16 +1,20 @@
 import type { Metadata } from "next";
+import type React from "react";
+
+import { CookieConsent } from "@/components/CookieConsent";
+import { brandName, siteUrl, storeDescription } from "@/lib/store-info";
 
 import "./globals.css";
 
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: {
-    default: "POP Store Computer | คอมพิวเตอร์สภาพดี ราคาคุ้ม รับประกัน 3 เดือน",
-    template: "%s | POP Store Computer",
+    default: `${brandName} | คอมพิวเตอร์มือสอง อุปกรณ์ไอที จัดสเปคคอม`,
+    template: `%s | ${brandName}`,
   },
-  description:
-    "POP Store Computer โดยบริษัท ป๊อบ สโตร์ จำกัด จำหน่ายคอมพิวเตอร์ All in One, PC และ Notebook Business สภาพดี ราคาคุ้ม ตรวจสอบ Serial Number ได้ พร้อมรับประกัน 3 เดือน",
+  description: storeDescription,
   keywords: [
-    "POP Store Computer",
+    brandName,
     "ป๊อบ สโตร์ จำกัด",
     "คอมพิวเตอร์มือสอง",
     "คอมพิวเตอร์สภาพดี",
@@ -20,11 +24,17 @@ export const metadata: Metadata = {
     "จัดสเปคคอม",
     "รับประกัน 3 เดือน",
   ],
+  alternates: {
+    canonical: "/",
+  },
   openGraph: {
-    title: "POP Store Computer | คอมพิวเตอร์สภาพดี ราคาคุ้ม",
-    description:
-      "Catalog สินค้าไอทีจาก POP Store Computer ดูราคา รายละเอียด และสั่งซื้อผ่าน Facebook",
+    title: `${brandName} | คอมพิวเตอร์มือสองและอุปกรณ์ไอที`,
+    description: storeDescription,
+    url: siteUrl,
+    siteName: brandName,
+    images: [{ url: "/logo/pop-store-final.jpg", width: 800, height: 800 }],
     type: "website",
+    locale: "th_TH",
   },
 };
 
@@ -35,7 +45,10 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="th">
-      <body>{children}</body>
+      <body>
+        {children}
+        <CookieConsent />
+      </body>
     </html>
   );
 }

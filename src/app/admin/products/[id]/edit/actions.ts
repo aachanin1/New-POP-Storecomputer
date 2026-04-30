@@ -88,10 +88,12 @@ export async function updateProduct(
         brandId,
         fbPostUrl,
         imageUrl,
+        updatedAt: new Date(),
       })
       .where(eq(products.id, id));
 
     revalidatePath("/");
+    revalidatePath("/products");
     revalidatePath("/admin/products");
     revalidatePath(`/admin/products/${id}/edit`);
 

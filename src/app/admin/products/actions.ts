@@ -20,9 +20,10 @@ export async function toggleProductVisibility(formData: FormData) {
 
   await db
     .update(products)
-    .set({ isVisible: nextVisible })
+    .set({ isVisible: nextVisible, updatedAt: new Date() })
     .where(eq(products.id, id));
 
   revalidatePath("/");
+  revalidatePath("/products");
   revalidatePath("/admin/products");
 }

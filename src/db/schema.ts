@@ -22,6 +22,7 @@ export const products = mysqlTable("products", {
   imageUrl: varchar("image_url", { length: 2048 }).notNull(),
   isVisible: boolean("is_visible").default(true).notNull(),
   createdAt: timestamp("created_at").defaultNow().notNull(),
+  updatedAt: timestamp("updated_at").defaultNow().onUpdateNow().notNull(),
 });
 
 export type ProductCategory = typeof productCategories.$inferSelect;

@@ -113,6 +113,31 @@ select {
   }
 }
 
+@keyframes logo-wiggle {
+  0%,
+  100% {
+    transform: translate3d(0, 0, 0) rotate(-1deg) scale(1);
+  }
+  25% {
+    transform: translate3d(0, -8px, 0) rotate(2deg) scale(1.02);
+  }
+  50% {
+    transform: translate3d(0, -2px, 0) rotate(-2deg) scale(1);
+  }
+  75% {
+    transform: translate3d(0, -10px, 0) rotate(1deg) scale(1.03);
+  }
+}
+
+@keyframes orbit-ring {
+  from {
+    transform: rotate(0deg);
+  }
+  to {
+    transform: rotate(360deg);
+  }
+}
+
 .animate-fade-up {
   animation: fade-up 700ms ease both;
 }
@@ -139,6 +164,22 @@ select {
 
 .animate-price-pop {
   animation: price-pop 520ms ease both;
+}
+
+.animate-logo-wiggle {
+  animation: logo-wiggle 5.4s ease-in-out infinite;
+}
+
+.animate-orbit-ring {
+  animation: orbit-ring 18s linear infinite;
+}
+
+.section-nav {
+  scrollbar-width: none;
+}
+
+.section-nav::-webkit-scrollbar {
+  display: none;
 }
 
 .motion-delay-1 {

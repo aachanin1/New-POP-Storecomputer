@@ -19,5 +19,5 @@ export function formatProductPrice(price: string) {
     return price;
   }
 
-  return `${Number(digits).toLocaleString("th-TH")} บาท`;
+  return `ราคา ${Number(digits).toLocaleString("th-TH")} บาท`;
 }
